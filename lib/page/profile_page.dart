@@ -1,30 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pas_mobile_11pplg1_26/controller/auth_controller.dart';
+import 'package:pas_mobile_11pplg1_26/controller/profile_controller.dart';
+import 'package:pas_mobile_11pplg1_26/widget/widget_button.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+  ProfilePage({super.key});
+
+  final ProfileController controller = Get.find<ProfileController>();
 
   @override
   Widget build(BuildContext context) {
-    final auth = Get.find<AuthController>();
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      appBar: AppBar(
+        title: const Text("Profil Saya"),
+        centerTitle: true,
+      ),
+      body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircleAvatar(radius: 48, child: Text(auth.username.value.isEmpty ? 'U' : auth.username.value[0].toUpperCase(), style: const TextStyle(fontSize: 32))),
-            const SizedBox(height: 12),
-            Text(auth.username.value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 6),
-            Text(auth.email.value),
+            CircleAvatar(
+              radius: 80,
+              backgroundImage: AssetImage('assets/profile.jpg'), 
+            ),
             const SizedBox(height: 20),
-            ElevatedButton.icon(onPressed: () => auth.logout(), icon: const Icon(Icons.logout), label: const Text('Logout')),
+            Text(
+              "Halo, adminibad",
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              "adminibad@gmail.com",
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
+            CustomButton(
+              text: "Log Out",
+              textColor: Colors.red,
+              onPressed: () {
+                controller.logout();
+              },
+            ),
           ],
         ),
       ),
     );
   }
 }
-

@@ -1,60 +1,68 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:pas_mobile_11pplg1_26/helper/db_helper.dart';
-import 'package:pas_mobile_11pplg1_26/services/api_services.dart';
-import '../models/product.dart';
+import 'package:pas_mobile_11pplg1_26/models/product_models.dart';
 
 class ProductController extends GetxController {
-  var products = <Product>[].obs;
-  var loading = false.obs;
-  var bookmarks = <Product>[].obs;
-
+  var isLoading = false.obs;
+  var products = <ProductModel>[].obs;
+  final DBHelper dbHelper = DBHelper();
   @override
   void onInit() {
-    fetchProducts();
-    loadBookmarks();
+    // TODO: implement onInit
     super.onInit();
+    fetchProducts();
   }
 
-  Future<void> fetchProducts() async {
+  void fetchProducts() async {
+    const url = 'https://fakestoreapi.com/products';
     try {
-      loading.value = true;
-      final res = await ApiService.fetchProducts();
-      products.value = res.map((e) => Product.fromJson(e)).toList();
+      isLoading(true);
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        final List<ProductModel> loadedProducts = data
+            .map((item) => ProductModel.fromJson(item))
+            .toList();
+        products.assignAll(loadedProducts);
+        // sync bookmarked state from local database
+        try {
+          final favs = await dbHelper.getFavorites();
+          final favIds = favs.map((e) => e.id).toSet();
+          for (var i = 0; i < products.length; i++) {
+            products[i].isBookmarked = favIds.contains(products[i].id);
+          }
+          products.refresh();
+        } catch (_) {
+          // ignore db errors here
+        }
+      } else {
+        Get.snackbar("Error", "Failed to load data: ${response.statusCode}");
+      }
     } catch (e) {
-      Get.snackbar('Error', e.toString());
+      Get.snackbar("Error", e.toString());
     } finally {
-      loading.value = false;
+      isLoading(false);
     }
   }
 
-  Future<void> toggleBookmark(Product p) async {
-    final exists = await DbHelper.isBookmarked(p.id);
-    if (exists) {
-      await DbHelper.removeBookmark(p.id);
-      bookmarks.removeWhere((e) => e.id == p.id);
-      Get.snackbar('Dihapus', '${p.title} dihapus dari favorit');
-    } else {
-      await DbHelper.insertBookmark(p.toMap());
-      bookmarks.add(p);
-      Get.snackbar('Tersimpan', '${p.title} disimpan ke favorit');
+  void toggleBookmark(ProductModel produk) async {
+    final idx = products.indexWhere((p) => p.id == produk.id);
+    if (idx != -1) {
+      products[idx].isBookmarked = !products[idx].isBookmarked;
+      products.refresh();
+      // persist change
+      try {
+        if (products[idx].isBookmarked) {
+          await dbHelper.insertFavorite(products[idx]);
+        } else {
+          await dbHelper.deleteFavoriteById(products[idx].id);
+        }
+      } catch (_) {
+        // ignore db errors for now
+      }
     }
-  }
-
-  Future<void> loadBookmarks() async {
-    final list = await DbHelper.getBookmarks();
-    bookmarks.value = list.map((m) => Product(
-      id: m['id'] as int,
-      title: m['title'] as String,
-      price: (m['price'] as num).toDouble(),
-      description: m['description'] as String,
-      category: m['category'] as String,
-      image: m['image'] as String,
-    )).toList();
-  }
-
-  Future<void> removeBookmark(int id) async {
-    await DbHelper.removeBookmark(id);
-    bookmarks.removeWhere((e) => e.id == id);
   }
 }
-
