@@ -13,7 +13,7 @@ class SplashscreenPage extends StatelessWidget {
       body: Center(
         child:
         CircularProgressIndicator(
-          color: Colors.purple,
+          color: Colors.red,
         ),
         
       ),
