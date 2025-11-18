@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pas_mobile_11pplg1_26/controller/register_controller.dart';
-import 'package:pas_mobile_11pplg1_26/page/loginapi_page.dart';
+import 'package:pas_mobile_11pplg1_26/controller/loginapi_controller.dart';
+import 'package:pas_mobile_11pplg1_26/page/home_page.dart';
+import 'package:pas_mobile_11pplg1_26/page/register_page.dart';
 
-class RegisterapiPage extends StatelessWidget {
-  RegisterapiPage({super.key});
+class LoginApiPage extends StatelessWidget {
+  LoginApiPage({super.key});
 
-  final RegisterapiController controller = Get.put(RegisterapiController());
+  final LoginApiController controller = Get.put(LoginApiController());
 
   @override
   Widget build(BuildContext context) {
@@ -24,17 +25,16 @@ class RegisterapiPage extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              const SizedBox(height: 70),
+              const SizedBox(height: 80),
 
               const Text(
-                "Create Your Account",
+                "Welcome Back!",
                 style: TextStyle(
                   fontSize: 32,
-                  color: Colors.white,
                   fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
-
               const SizedBox(height: 10),
 
               Image.asset(
@@ -42,7 +42,6 @@ class RegisterapiPage extends StatelessWidget {
                 width: 200,
                 height: 200,
               ),
-
               const SizedBox(height: 20),
 
               Container(
@@ -73,7 +72,8 @@ class RegisterapiPage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
+
+                    const SizedBox(height: 15),
 
                     TextField(
                       controller: controller.password,
@@ -88,36 +88,8 @@ class RegisterapiPage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
 
-                    TextField(
-                      controller: controller.fullname,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.badge),
-                        labelText: "Full Name",
-                        filled: true,
-                        fillColor: Colors.grey.shade100,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    TextField(
-                      controller: controller.emails,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.email),
-                        labelText: "Email",
-                        filled: true,
-                        fillColor: Colors.grey.shade100,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 25),
 
                     Obx(() {
                       return SizedBox(
@@ -133,19 +105,19 @@ class RegisterapiPage extends StatelessWidget {
                           onPressed: controller.isLoading.value
                               ? null
                               : () async {
-                                  await controller.register();
+                                  await controller.login();
 
-                                  if (controller.registerStatus.value
+                                  if (controller.loginStatus.value
                                       .toLowerCase()
                                       .contains("success")) {
                                     Get.snackbar(
-                                      "Register Berhasil",
-                                      "Akun berhasil dibuat!",
+                                      "Login Berhasil",
+                                      "Selamat datang kembali!",
                                       snackPosition: SnackPosition.TOP,
                                       backgroundColor: Colors.green.shade600,
                                       colorText: Colors.white,
                                     );
-                                    Get.offAll(() => LoginApiPage());
+                                    Get.offAll(() => HomePage());
                                   }
                                 },
                           child: controller.isLoading.value
@@ -154,7 +126,7 @@ class RegisterapiPage extends StatelessWidget {
                                   strokeWidth: 2,
                                 )
                               : const Text(
-                                  "Register",
+                                  "Login",
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -167,9 +139,9 @@ class RegisterapiPage extends StatelessWidget {
                     const SizedBox(height: 15),
 
                     TextButton(
-                      onPressed: () => Get.to(() => LoginApiPage()),
+                      onPressed: () => Get.to(() => RegisterapiPage()),
                       child: const Text(
-                        "Sudah punya akun? Login disini",
+                        "Belum punya akun? Register di sini",
                         style: TextStyle(
                           color: Color(0xFF2575FC),
                           fontWeight: FontWeight.w600,
